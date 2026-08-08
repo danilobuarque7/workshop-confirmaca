@@ -91,10 +91,53 @@ def workshop():
 def sucesso():
     return render_template("sucesso.html")
 
+from functools import wraps
+from flask import session
+
+ADMIN_USUARIO = os.environ.get("ADMIN_USUARIO", "admin")
+ADMIN_SENHA = os.environ.get("ADMIN_SENHA", "troque-esta-senha")
+
+
+def admin_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if session.get("admin_logado"):
+            return func(*args, **kwargs)
+        return redirect(url_for("admin_login"))
+    return wrapper
+
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        usuario = request.form.get("usuario", "")
+        senha = request.form.get("senha", "")
+
+        if usuario == ADMIN_USUARIO and senha == ADMIN_SENHA:
+            session["admin_logado"] = True
+            return redirect(url_for("admin"))
+
+        flash("Usuário ou senha incorretos.", "erro")
+
+    return render_template("admin_login.html")
+
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("admin_logado", None)
+    return redirect(url_for("admin_login"))
+
+
 @app.route("/admin")
+@admin_required
 def admin():
     inscricoes = Inscricao.query.order_by(Inscricao.id.desc()).all()
     return render_template("admin.html", inscricoes=inscricoes)
+
+
+@app.route("/admin/exportar")
+@admin_required
+def exportar():
 
 @app.route("/admin/exportar")
 def exportar():
