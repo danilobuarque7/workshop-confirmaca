@@ -1,0 +1,1 @@
+Coloque seu QR Code nesta pasta com o nome qrcode-pix.png
