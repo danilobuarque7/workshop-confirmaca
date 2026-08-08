@@ -136,10 +136,6 @@ def admin():
 
 
 @app.route("/admin/exportar")
-@admin_required
-def exportar():
-
-@app.route("/admin/exportar")
 def exportar():
     import csv
     from io import StringIO
