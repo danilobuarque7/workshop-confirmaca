@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmação de Participação - Workshop</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f5f8;color:#1f2937;padding:28px 15px}.container{max-width:850px;margin:auto}.header{background:#111827;color:#fff;padding:34px;border-radius:18px 18px 0 0;text-align:center}.header h1{margin:0 0 10px;font-size:28px}.header p{margin:0;color:#d1d5db;line-height:1.5}.vagas{display:inline-block;margin-top:18px;padding:10px 16px;border-radius:999px;background:#fff;color:#111827;font-weight:bold}.form{background:#fff;padding:34px;border-radius:0 0 18px 18px;box-shadow:0 5px 25px #00000012}.secao{margin-bottom:30px}.titulo{font-size:19px;font-weight:bold;border-bottom:2px solid #eee;padding-bottom:10px;margin-bottom:20px}.linha{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:18px}.campo{display:flex;flex-direction:column}.campo label{font-size:14px;font-weight:bold;margin-bottom:7px}.campo input,.campo select{padding:13px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;outline:none}.campo input:focus,.campo select:focus{border-color:#111827}.req{color:#dc2626}.participacao,.pagamento{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:22px}.opcoes{display:flex;gap:30px}.opcao{display:flex;gap:8px;align-items:center}.opcao input{width:18px;height:18px}#quantidadeBox{display:none;margin-top:20px}.qrcode{width:220px;height:220px;margin:20px auto;border:1px solid #ddd;border-radius:8px;padding:10px;background:#fff;display:flex;align-items:center;justify-content:center}.qrcode img{max-width:100%;max-height:100%}.pix{background:#fff;border:1px dashed #9ca3af;padding:12px;border-radius:8px;text-align:center;word-break:break-all}.botao{width:100%;margin-top:28px;padding:16px;border:0;border-radius:9px;background:#111827;color:#fff;font-size:16px;font-weight:bold;cursor:pointer}.msg{background:#fee2e2;color:#991b1b;padding:13px;border-radius:8px;margin-bottom:20px}.rodape{text-align:center;color:#6b7280;font-size:12px;margin-top:18px}@media(max-width:650px){.linha{grid-template-columns:1fr}.opcoes{flex-direction:column;gap:12px}.form{padding:24px 18px}.header{padding:28px 18px}}
+.logo-workshop {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 15px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header class="header">
+    <img src="{{ url_for('static', filename='img/logo-workshop.png') }}"
+         alt="Workshop"
+         class="logo-workshop">
+
+    <p>Preencha seus dados para confirmar sua participação.</p>
+</header>
+<form class="form" method="POST">
+{% with messages=get_flashed_messages(with_categories=true) %}{% for categoria,mensagem in messages %}<div class="msg">{{ mensagem }}</div>{% endfor %}{% endwith %}
+<section class="secao"><div class="titulo">1. Dados do participante</div>
+<div class="linha"><div class="campo"><label>Nome completo <span class="req">*</span></label><input name="nome" required placeholder="Digite seu nome completo"></div>
+<div class="campo"><label>CPF <span class="req">*</span></label><input name="cpf" required placeholder="000.000.000-00"></div></div>
+<div class="linha"><div class="campo"><label>WhatsApp <span class="req">*</span></label><input name="whatsapp" required placeholder="(00) 00000-0000"></div>
+<div class="campo"><label>E-mail <span class="req">*</span></label><input type="email" name="email" required placeholder="seuemail@email.com"></div></div></section>
+<section class="secao"><div class="titulo">2. Dados da empresa</div>
+<div class="linha"><div class="campo"><label>CNPJ da empresa <span class="req">*</span></label><input name="cnpj" required placeholder="00.000.000/0000-00"></div>
+<div class="campo"><label>Regime tributário <span class="req">*</span></label><select name="regime" required><option value="">Selecione</option><option>MEI</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option></select></div></div></section>
+<section class="secao"><div class="titulo">3. Participação</div><div class="participacao">
+<strong>Você participará sozinho?</strong><div class="opcoes" style="margin-top:15px">
+<label class="opcao"><input type="radio" name="sozinho" value="sim" required onclick="qtd(false)"> Sim, vou sozinho</label>
+<label class="opcao"><input type="radio" name="sozinho" value="nao" onclick="qtd(true)"> Não, vou acompanhado</label></div>
+<div id="quantidadeBox" class="campo"><label>Quantidade total de pessoas</label><input id="quantidade" type="number" min="2" max="{{ vagas_restantes }}" name="quantidade" placeholder="Ex.: 3"></div>
+</div></section>
+<section class="secao"><div class="titulo">4. Pagamento</div><div class="pagamento">
+<h3>Pagamento da inscrição</h3><p>Realize o pagamento utilizando o QR Code abaixo e guarde o comprovante.</p>
+<div class="qrcode"><img src="{{ url_for('static',filename='img/qrcode-pix.png') }}" alt="QR Code PIX"></div>
+<strong>Chave PIX</strong><div class="pix">00020101021126360014br.gov.bcb.pix0114+558199688660852040000530398654040.015802BR5917JOSE A M N JUNIOR6007CARUARU62070503***63048E0E</div>
+</div></section>
+<button class="botao" type="submit">CONFIRMAR INSCRIÇÃO</button>
+<div class="rodape">Você recererá a confirmação via whatsaap informado</div>
+<div class="rodape">Seus dados serão utilizados para organização e confirmação do workshop.</div>
+</form></div>
+<script>
+function qtd(show){const b=document.getElementById('quantidadeBox'),i=document.getElementById('quantidade');b.style.display=show?'flex':'none';i.required=show;if(!show)i.value='';}
+</script>
+</body></html>
