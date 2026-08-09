@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
+import json
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -24,6 +25,7 @@ class Inscricao(db.Model):
     regime = db.Column(db.String(50), nullable=False)
     sozinho = db.Column(db.String(10), nullable=False)
     quantidade = db.Column(db.Integer, nullable=False)
+    acompanhantes = db.Column(db.Text, nullable=True)
     data_inscricao = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 def total_participantes():
@@ -48,6 +50,15 @@ def workshop():
             quantidade = 1 if request.form.get("sozinho") == "sim" else int(request.form.get("quantidade", "0"))
         except ValueError:
             quantidade = 0
+            
+        acompanhantes = []
+
+        if request.form.get("sozinho") == "nao":
+            for i in range(1, quantidade + 1):
+                nome_acompanhante = request.form.get(f"acompanhante_{i}", "").strip()
+
+                if nome_acompanhante:
+                   acompanhantes.append(nome_acompanhante)
 
         if total_atual >= LIMITE_PARTICIPANTES:
             return render_template("encerrado.html")
@@ -69,13 +80,18 @@ def workshop():
             "cnpj": request.form.get("cnpj", "").strip(),
             "regime": request.form.get("regime", "").strip(),
             "sozinho": request.form.get("sozinho", "").strip(),
-            "quantidade": quantidade
+            "quantidade": quantidade,
+            "acompanhantes": json.dumps(acompanhantes, ensure_ascii=False)
         }
 
+        if dados["sozinho"] == "nao" and len(acompanhantes) != quantidade:
+            flash("Informe o nome completo de todos os acompanhantes.", "erro")
+            return render_template("workshop.html")
+    
         if not all([dados["nome"], dados["cpf"], dados["whatsapp"], dados["email"],
                     dados["cnpj"], dados["regime"], dados["sozinho"]]):
             flash("Preencha todos os campos obrigatórios.", "erro")
-            return render_template("workshop.html")
+            return render_template("workshop.html")                        
 
         db.session.add(Inscricao(**dados))
         db.session.commit()
