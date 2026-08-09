@@ -33,12 +33,77 @@
 <section class="secao"><div class="titulo">2. Dados da empresa</div>
 <div class="linha"><div class="campo"><label>CNPJ da empresa <span class="req">*</span></label><input name="cnpj" required placeholder="00.000.000/0000-00"></div>
 <div class="campo"><label>Regime tributário <span class="req">*</span></label><select name="regime" required><option value="">Selecione</option><option>MEI</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option></select></div></div></section>
-<section class="secao"><div class="titulo">3. Participação</div><div class="participacao">
-<strong>Você participará sozinho?</strong><div class="opcoes" style="margin-top:15px">
-<label class="opcao"><input type="radio" name="sozinho" value="sim" required onclick="qtd(false)"> Sim, vou sozinho</label>
-<label class="opcao"><input type="radio" name="sozinho" value="nao" onclick="qtd(true)"> Não, vou acompanhado</label></div>
-<div id="quantidadeBox" class="campo"><label>Quantidade total de pessoas</label><input id="quantidade" type="number" min="2" max="{{ vagas_restantes }}" name="quantidade" placeholder="Ex.: 3"></div>
-</div></section>
+<script>
+
+function qtd(show) {
+
+    const box = document.getElementById("quantidadeBox");
+    const quantidade = document.getElementById("quantidade");
+    const acompanhantesBox = document.getElementById("acompanhantesBox");
+
+    box.style.display = show ? "flex" : "none";
+
+    quantidade.required = show;
+
+    if (!show) {
+
+        quantidade.value = "";
+
+        acompanhantesBox.innerHTML = "";
+
+    } else {
+
+        gerarAcompanhantes();
+
+    }
+
+}
+
+
+function gerarAcompanhantes() {
+
+    const quantidade =
+        parseInt(
+            document.getElementById("quantidade").value || "0"
+        );
+
+    const box =
+        document.getElementById("acompanhantesBox");
+
+    box.innerHTML = "";
+
+    if (quantidade < 1) {
+        return;
+    }
+
+    for (let n = 1; n <= quantidade; n++) {
+
+        const campo = document.createElement("div");
+
+        campo.className = "campo";
+
+        campo.style.marginBottom = "14px";
+
+        campo.innerHTML = `
+            <label>
+                Nome completo do acompanhante ${n}
+                <span class="req">*</span>
+            </label>
+
+            <input
+                type="text"
+                name="acompanhante_${n}"
+                required
+                placeholder="Digite o nome completo"
+            >
+        `;
+
+        box.appendChild(campo);
+    }
+
+}
+
+</script>
 <button class="botao" type="submit">CONFIRMAR INSCRIÇÃO</button>
 <div class="rodape">Você receberá a confirmação via whatsapp informado no cadastro</div>
 <div class="rodape">Seus dados serão utilizados para organização e confirmação do workshop.</div>
