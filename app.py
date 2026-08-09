@@ -168,5 +168,16 @@ def exportar():
 with app.app_context():
     db.create_all()
 
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    colunas = [coluna["name"] for coluna in inspector.get_columns("inscricao")]
+
+    if "acompanhantes" not in colunas:
+        with db.engine.begin() as conn:
+            conn.execute(
+                text("ALTER TABLE inscricao ADD COLUMN acompanhantes TEXT")
+            )
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
